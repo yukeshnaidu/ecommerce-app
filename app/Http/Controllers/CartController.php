@@ -43,6 +43,8 @@ class CartController extends Controller
         return view('cart.index', compact('cartItems'));
     }
     
+   
+
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -50,28 +52,47 @@ class CartController extends Controller
         ]);
         
         $cartItem = Cart::where('user_id', auth()->id())
-                       ->where('id', $id)
-                       ->firstOrFail();
+                    ->where('id', $id)
+                    ->firstOrFail();
         
         $cartItem->update(['quantity' => $request->quantity]);
         
         return response()->json([
             'success' => true,
+            'item_id' => $id,
+            'item_total' => $cartItem->quantity * $cartItem->product->price,
             'subtotal' => $this->calculateSubtotal(),
+            'gst' => $this->calculateSubtotal() * 0.18,
+            'total' => $this->calculateSubtotal() * 1.18 + 100,
             'cart_count' => $this->getCartCount()
         ]);
     }
+
+   
     
     public function remove($id)
     {
-        Cart::where('user_id', auth()->id())
-            ->where('id', $id)
-            ->delete();
-            
+        $cartItem = Cart::where('user_id', auth()->id())
+                    ->where('id', $id)
+                    ->firstOrFail();
+                    
+        $cartItem->delete();
+        
+        $cartCount = $this->getCartCount();
+        $subtotal = $this->calculateSubtotal();
+        $gst = $subtotal * 0.18;
+        
+        // Calculate shipping - 0 if cart is empty, otherwise 100
+       $shipping = $cartCount > 0 ? $this->getShippingCharge() : 0;
+        $total = $subtotal + $gst + $shipping;
+        
         return response()->json([
             'success' => true,
-            'subtotal' => $this->calculateSubtotal(),
-            'cart_count' => $this->getCartCount()
+            'subtotal' => $subtotal,
+            'gst' => $gst,
+            'shipping' => $shipping,
+            'total' => $total,
+            'cart_count' => $cartCount
         ]);
     }
     
@@ -95,5 +116,10 @@ class CartController extends Controller
         return response()->json([
             'count' => $this->getCartCount()
         ]);
+    }
+
+    private function getShippingCharge()
+    {
+        return env('SHIPPING_CHARGE', 100);
     }
 }
