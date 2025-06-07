@@ -40,7 +40,7 @@ class PermissionsTableSeeder extends Seeder
             Permission::create($permission);
         }
         
-        // Assign permissions to roles
+        
         $superAdmin = Role::where('slug', 'super-admin')->first();
         $superAdmin->permissions()->attach(Permission::all());
         
@@ -48,6 +48,6 @@ class PermissionsTableSeeder extends Seeder
         $admin->permissions()->attach(Permission::whereIn('slug', ['add', 'edit'])->get());
         
         $user = Role::where('slug', 'user')->first();
-        // Users might not have direct permissions, handled via role
+       
     }
 }
