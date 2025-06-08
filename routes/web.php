@@ -96,6 +96,8 @@ use App\Http\Controllers\OrderController;
     });
 
 
+    
+
     // cart
     Route::group(['middleware' => 'auth'], function() {
         Route::post('/cart/add', 'CartController@add')->name('cart.add');
