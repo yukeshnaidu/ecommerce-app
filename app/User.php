@@ -42,13 +42,48 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class);
     }
     
-    public function hasPermission($slug)
-    {
-        return $this->role->permissions()->where('slug', $slug)->exists();
-    }
+    // public function hasPermission($slug)
+    // {
+    //     return $this->role->permissions()->where('slug', $slug)->exists();
+    // }
 
     public function cartItems()
     {
         return $this->hasMany(Cart::class);
+    }
+
+
+     public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_has_roles');
+    }
+
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'user_has_permissions');
+    }
+
+    public function hasRole($role)
+    {
+        if (is_string($role)) {
+            return $this->roles->contains('slug', $role);
+        }
+
+        return !! $role->intersect($this->roles)->count();
+    }
+
+    public function hasPermission($permission)
+    {
+        if (is_string($permission)) {
+            return $this->permissions->contains('slug', $permission) || 
+                   $this->roles->contains(function($role) use ($permission) {
+                       return $role->permissions->contains('slug', $permission);
+                   });
+        }
+
+        return $this->permissions->contains($permission) || 
+               $this->roles->contains(function($role) use ($permission) {
+                   return $role->permissions->contains($permission);
+               });
     }
 }
