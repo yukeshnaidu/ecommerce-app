@@ -3,7 +3,46 @@
 @section('title', 'Login')
 
 @section('content')
+<style>
+	.custom-alert {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid #ff4d4d;
+    color: #ff4d4d;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 400px;
+    text-align: left;
+    box-shadow: 0 2px 6px rgba(255, 0, 0, 0.2);
+    animation: slideIn 0.3s ease-out;
+}
+
+.custom-alert ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.custom-alert li::before {
+    content: "⚠️ ";
+    margin-right: 6px;
+}
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+</style>
 	<div class="section">
+		@if (!Auth::check())
+    <button id="backBtn" class="btn btn-outline-secondary mb-3">
+        ← Back
+    </button>
+@endif
+
 		<div class="container">
 			<div class="row full-height justify-content-center">
 				<div class="col-12 text-center align-self-center py-5">
@@ -15,6 +54,15 @@
 							<div class="card-3d-wrapper">
 								<div class="card-front">
 									<div class="center-wrap">
+										@if ($errors->any())
+											<div class="custom-alert">
+												<ul>
+													@foreach ($errors->all() as $error)
+														<li> {{ $error }}</li>
+													@endforeach
+												</ul>
+											</div>
+										@endif
 										<div class="section text-center">
 											<h4 class="mb-4 pb-3">Log In</h4>
                                             <form method="POST" action="{{ route('login.post') }}">
@@ -75,8 +123,23 @@
 	    </div>
 	</div>
 @endsection
+@section('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const backBtn = document.getElementById('backBtn');
 
+       
+        if (window.history.length <= 1) {
+            backBtn.style.display = 'none'; 
+        }
 
+        backBtn?.addEventListener("click", function () {
+            window.history.back();
+        });
+    });
+</script>
+
+@endsection
 
 
 	

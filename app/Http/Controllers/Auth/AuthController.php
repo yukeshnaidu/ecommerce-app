@@ -79,7 +79,11 @@ class AuthController extends Controller
         }
     }
 
-    return back()->withErrors(['email' => 'Invalid credentials.']);
+    if (User::where('email', $request->email)->exists()) {
+        return back()->withErrors(['password' => 'The provided password is incorrect.'])->withInput();
+    }
+
+    return back()->withErrors(['email' => 'No account found with this email address.'])->withInput();
 }
         
     public function register(Request $request)
