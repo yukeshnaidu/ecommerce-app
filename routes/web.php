@@ -65,7 +65,8 @@ use App\Http\Controllers\OrderController;
     });
 
 
-
+    
+    Route::get('/products/filter', 'ProductController@filteredProducts')->name('products.filter');
     Route::post('/upload', 'ProductController@upload')->name('upload');
     Route::get('/get-subcategories/{category_id}', 'ProductController@getSubcategories');
 
@@ -109,3 +110,4 @@ use App\Http\Controllers\OrderController;
         Route::get('/orders', 'OrderController@index')->name('orders.index');
         Route::get('/orders/{order}', 'OrderController@show')->name('orders.show');
     });
+

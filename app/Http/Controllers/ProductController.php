@@ -139,4 +139,78 @@ public function show(Product $product)
     return view('products.show', compact('product', 'relatedProducts'));
 }
 
+
+    
+    public function filteredProducts(Request $request)
+    {
+        $query = Product::with(['category', 'subCategory'])
+                    ->select('products.*');
+        
+        // Category filter
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+        
+        // Subcategory filter
+        if ($request->has('sub_category_id')) {
+            $query->where('sub_category_id', $request->sub_category_id);
+        }
+        
+        // Price range filter
+        if ($request->has('min_price') && $request->has('max_price')) {
+            $query->whereBetween('price', [
+                $request->min_price, 
+                $request->max_price
+            ]);
+        }
+        
+        // Search term filter (with debouncing handled client-side)
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%'.$request->search.'%')
+                ->orWhere('description', 'like', '%'.$request->search.'%');
+        }
+        
+        // Sorting
+        $sort = $request->get('sort', 'latest');
+        switch($sort) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'name':
+                $query->orderBy('name', 'asc');
+                break;
+            default: 
+                $query->orderBy('created_at', 'desc');
+        }
+        
+        // Pagination
+        $perPage = $request->get('per_page', 12);
+        $products = $query->paginate($perPage);
+        
+        // Related products (for sidebar)
+        $relatedProducts = Product::inRandomOrder()
+            ->limit(4)
+            ->get();
+        
+        // Latest products
+        $latestProducts = Product::orderBy('created_at', 'desc')
+            ->limit(4)
+            ->get();
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'products' => $products,
+                'pagination' => (string) $products->links(),
+                'relatedProducts' => $relatedProducts,
+                'latestProducts' => $latestProducts
+            ]);
+        }
+        
+        $categories = Category::with('subCategories')->get();
+        
+        return view('products.listing', compact('categories', 'products', 'relatedProducts', 'latestProducts'));
+    }
 }

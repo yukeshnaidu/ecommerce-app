@@ -125,9 +125,6 @@
                         <span>₹{{ number_format($total, 2) }}</span>
                     </div>
                     
-                    <button type="button" class="btn btn-primary btn-block" id="place-order-btn">
-                        Place Order
-                    </button>
                 </div>
             </div>
         </div>
