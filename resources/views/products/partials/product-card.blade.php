@@ -23,19 +23,19 @@
             <div class="category-list">
                 <a href="#" class="product-category">{{ $product->category->name }}</a>
             </div>
-            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>
+            <!-- <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a> -->
         </div>
 
         <h3 class="product-title">
             <a href="{{ route('product.show', $product->id) }}">{{ $product->name }}</a>
         </h3>
 
-        <div class="ratings-container">
+        <!-- <div class="ratings-container">
             <div class="product-ratings">
                 <span class="ratings" style="width:80%"></span>
                 <span class="tooltiptext tooltip-top">4.0</span>
             </div>
-        </div>
+        </div> -->
 
         <div class="price-box">
             <span class="product-price">₹{{ number_format($product->price, 2) }}</span>

@@ -2,7 +2,7 @@
 
 @section('content')
 <style>
-    /* Add to your CSS file */
+   
 .sidebar {
     position: sticky;
     top: 20px;
@@ -81,7 +81,7 @@
     <div class="container">
         <nav aria-label="breadcrumb" class="breadcrumb-nav">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ route('home') }}"><i class="icon-home"></i></a></li>
+                <li class="breadcrumb-item"><a href="{{ route('main') }}"><i class="icon-home"></i></a></li>
                 <li class="breadcrumb-item active">Products</li>
             </ol>
         </nav>
@@ -107,17 +107,23 @@
                         <ul class="category-list" id="category-filter">
                             @foreach($categories as $category)
                             <li>
-                                <a href="#" data-category-id="{{ $category->id }}" class="category-link">
+                                <!-- <a href="#" data-category-id="{{ $category->id }}" class="category-link"> -->
+                                <a href="#" 
+                                    data-category-id="{{ $category->id }}" 
+                                    class="category-link {{ isset($selectedCategoryId) && $selectedCategoryId == $category->id ? 'active' : '' }}">
                                     {{ $category->name }}
                                     <span class="category-count">({{ $category->products_count }})</span>
                                 </a>
+
                                 @if($category->subCategories->count())
                                 <ul class="subcategory-list">
                                     @foreach($category->subCategories as $subCategory)
                                     <li>
-                                        <a href="#" data-subcategory-id="{{ $subCategory->id }}" class="subcategory-link">
+                                        <a href="{{ route('products.filter', ['category_id' => $category->id, 'sub_category_id' => $subCategory->id]) }}"
+                                          class="subcategory-link {{ isset($selectedSubCategoryId) && $selectedSubCategoryId == $subCategory->id ? 'active' : '' }}">
                                             {{ $subCategory->name }}
                                         </a>
+
                                     </li>
                                     @endforeach
                                 </ul>
@@ -207,104 +213,98 @@
 </main>
 @endsection
 
-@push('scripts')
+@section('scripts')
 <script>
 $(document).ready(function() {
-    // Debounce function
-    function debounce(func, wait, immediate) {
-        var timeout;
-        return function() {
-            var context = this, args = arguments;
-            var later = function() {
-                timeout = null;
-                if (!immediate) func.apply(context, args);
-            };
-            var callNow = immediate && !timeout;
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-            if (callNow) func.apply(context, args);
-        };
-    }
+    let debounceTimeout;
 
-    // Initialize price slider
-    const priceSlider = document.getElementById('price-slider');
-    if (priceSlider) {
-        noUiSlider.create(priceSlider, {
-            start: [0, 1000],
-            connect: true,
-            range: {
-                'min': 0,
-                'max': 1000
-            },
-            step: 10
-        });
-
-        priceSlider.noUiSlider.on('update', function(values, handle) {
-            document.getElementById('min-price').value = Math.round(values[0]);
-            document.getElementById('max-price').value = Math.round(values[1]);
-        });
-    }
-
-    // Filter products function
-    function filterProducts() {
-        const params = {
-            category_id: $('.category-link.active').data('category-id') || null,
-            sub_category_id: $('.subcategory-link.active').data('subcategory-id') || null,
-            min_price: $('#min-price').val(),
-            max_price: $('#max-price').val(),
-            search: $('#search-input').val(),
-            sort: $('#sortby').val(),
-            page: $('.pagination .active span').text() || 1
-        };
-
+    function loadProducts(params = {}) {
+        $('#products-container').addClass('products-loading');
         $.ajax({
-            url: "{{ route('products.filter') }}",
+            url: '{{ route("products.filter") }}',
+            method: 'GET',
             data: params,
             success: function(response) {
-                $('#products-container').html(response.products);
-                $('.pagination-container').html(response.pagination);
-                $('#latest-products').html(response.latestProducts);
-                
-                // Update showing counts
-                const from = (response.current_page - 1) * response.per_page + 1;
-                const to = Math.min(response.current_page * response.per_page, response.total);
-                $('#showing-from').text(from);
-                $('#showing-to').text(to);
-                $('#total-products').text(response.total);
+                $('#products-container').html(response.html).removeClass('products-loading');
+                $('#latest-products').html(response.latestHtml);
+                $('#total-products').text(response.meta.total);
+                $('#showing-from').text(response.meta.from);
+                $('#showing-to').text(response.meta.to);
+            },
+            error: function() {
+                alert("Something went wrong!");
+                $('#products-container').removeClass('products-loading');
             }
         });
     }
 
-    // Debounced filter
-    const debouncedFilter = debounce(filterProducts, 500);
+    function gatherFilters() {
+        return {
+            category_id: $('.category-link.active').data('category-id'),
+            sub_category_id: $('.subcategory-link.active').data('subcategory-id'),
+            min_price: $('#min-price').val(),
+            max_price: $('#max-price').val(),
+            search: $('#search-input').val(),
+            sort: $('#sortby').val()
+        };
+    }
 
-    // Event listeners
-    $('#search-input').on('keyup', debouncedFilter);
-    $('#sortby').on('change', filterProducts);
-    $('#apply-price').on('click', filterProducts);
-    
-    $('.category-link').on('click', function(e) {
+    // Search with debounce
+    $('#search-input').on('input', function() {
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(() => {
+            loadProducts(gatherFilters());
+        }, 500);
+    });
+
+    // Sort dropdown
+    $('#sortby').on('change', function() {
+        loadProducts(gatherFilters());
+    });
+
+    // Price filter
+    $('#apply-price').on('click', function() {
+        loadProducts(gatherFilters());
+    });
+
+    // Category click
+    $(document).on('click', '.category-link', function(e) {
         e.preventDefault();
         $('.category-link').removeClass('active');
         $(this).addClass('active');
         $('.subcategory-link').removeClass('active');
-        filterProducts();
-    });
-    
-    $('.subcategory-link').on('click', function(e) {
-        e.preventDefault();
-        $('.subcategory-link').removeClass('active');
-        $(this).addClass('active');
-        filterProducts();
+        loadProducts(gatherFilters());
     });
 
-    // Pagination links
+    // Subcategory click
+    $(document).on('click', '.subcategory-link', function(e) {
+        // e.preventDefault();
+        // $('.subcategory-link').removeClass('active');
+        // $(this).addClass('active');
+        // loadProducts(gatherFilters());
+    });
+
+    // Pagination via AJAX
     $(document).on('click', '.pagination a', function(e) {
         e.preventDefault();
-        const page = $(this).attr('href').split('page=')[1];
-        $('input[name="page"]').val(page);
-        filterProducts();
+        const url = $(this).attr('href');
+        const params = gatherFilters();
+        const fullUrl = new URL(url);
+        for (const key in params) {
+            if (params[key]) {
+                fullUrl.searchParams.set(key, params[key]);
+            }
+        }
+        $('#products-container').addClass('products-loading');
+        $.get(fullUrl.toString(), function(response) {
+            $('#products-container').html(response.html).removeClass('products-loading');
+            $('#latest-products').html(response.latestHtml);
+            $('#total-products').text(response.meta.total);
+            $('#showing-from').text(response.meta.from);
+            $('#showing-to').text(response.meta.to);
+        });
     });
 });
 </script>
-@endpush
+
+@endsection

@@ -5,7 +5,7 @@
 <div class="container">
                     <div class="row">
                         <div class="col-md-6">
-                            <div class="product-gallery">
+                            <div class="product-gallery" style="width: 350px; height: 350px; overflow: hidden;">
                                 <img src="{{ asset('product_images/'.$product->image) }}" alt="{{ $product->name }}" class="img-fluid">
                             </div>
                         </div>
@@ -35,16 +35,7 @@
                             </div>
                             
                             <!--  -->
-                            <div class="product-action">
-                                <form action="{{ route('cart.add') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                    <div class="quantity">
-                                        <input type="number" name="quantity" value="1" min="1" class="form-control">
-                                    </div>
-                                    <button type="submit" class="btn btn-dark btn-add-cart">Add to Cart</button>
-                                </form>
-                            </div>
+                            
                         </div>
                     </div>
                     
@@ -55,7 +46,7 @@
                             @foreach($relatedProducts as $related)
                             <div class="col-md-3">
                                 <div class="product-default">
-                                    <figure>
+                                    <figure style="width: 205px; height: 205px; overflow: hidden;">
                                         <a href="{{ route('product.show', $related->id) }}">
                                             <img src="{{ asset('product_images/'.$related->image) }}" width="205" height="205" alt="{{ $related->name }}">
                                         </a>

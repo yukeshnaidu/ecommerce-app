@@ -59,10 +59,10 @@
                         <nav class="main-nav w-100">
                             <ul class="menu">
                                 <li class="active">
-                                    <a href="{{ route('main') }}">Home</a>
+                                    <a href="{{ route('home') }}">Home</a>
                                 </li>                                
                                 <li>
-                                    <a href="#pro">Products</a>                                  
+                                    <a href="{{ route('products.filter') }}">Products</a>                                  
                                 </li>   
                                  <li>
                                     <a href="{{ route('orders.index') }}">My Orders</a>                                  
@@ -307,20 +307,24 @@
                                 <div class="category-wrap">
                                     <div class="category-list">
                                         <!-- Link to a category filter page if exists -->
-                                        <a href="#" class="product-category">{{ $category->name }}</a>
+                                        <!-- <a href="#" class="product-category">{{ $category->name }}</a> -->
+                                         <a href="{{ route('products.filter', ['category_id' => $category->id]) }}" class="product-category">{{ $category->name }}</a>
+
                                     </div>
                                 </div>
 
                                 <h3 class="product-title">
-                                    <a href="#">{{ $category->name }}</a>
+                                    <!-- <a href="#">{{ $category->name }}</a> -->
+                                     <a href="{{ route('products.filter', ['category_id' => $category->id]) }}" class="product-category">{{ $category->name }}</a>
+
                                 </h3>
 
-                                <div class="ratings-container">
+                                <!-- <div class="ratings-container">
                                     <div class="product-ratings">
                                         <span class="ratings" style="width:100%"></span>
                                         <span class="tooltiptext tooltip-top"></span>
                                     </div>
-                                </div>
+                                </div> -->
 
                                 <div class="price-box">
                                     <span class="product-price">Explore</span>
@@ -405,19 +409,19 @@
                 <div class="category-list">
                     <a href="#" class="product-category">{{ $product->category->name ?? 'Uncategorized' }}</a>
                 </div>
-                <a href="#" title="Wishlist" class="btn-icon-wish"><i class="icon-heart"></i></a>
+                <!-- <a href="#" title="Wishlist" class="btn-icon-wish"><i class="icon-heart"></i></a> -->
             </div>
 
             <h3 class="product-title">
                 <a href="{{ route('product.show', $product->id) }}">{{ $product->name }}</a>
             </h3>
 
-            <div class="ratings-container">
+            <!-- <div class="ratings-container">
                 <div class="product-ratings">
                     <span class="ratings" style="width:100%"></span>
                     <span class="tooltiptext tooltip-top"></span>
                 </div>
-            </div>
+            </div> -->
 
             <div class="price-box">
                 <span class="product-price">₹{{ number_format($product->price, 2) }}</span>

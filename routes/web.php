@@ -35,7 +35,7 @@ use App\Http\Controllers\OrderController;
     Route::get('/', function () {
         return view('home');
     });
-    Route::get('/', 'HomeController@home');
+    Route::get('/', 'HomeController@home')->name('home');
     // Authentication Routes
     Route::get('login', 'Auth\AuthController@showLogin')->name('login');
     Route::post('login', 'Auth\AuthController@login')->name('login.post');
@@ -46,7 +46,7 @@ use App\Http\Controllers\OrderController;
     Route::middleware(['auth'])->group(function () {
         // User route
         Route::get('main', 'ProductController@test')->name('main'); 
-        Route::get('/products/{product}', 'ProductController@show')->name('product.show');   
+        // Route::get('/products/{product}', 'ProductController@show')->name('product.show');   
         // Admin routes
         Route::prefix('admin')->middleware(['auth', 'role:admin,super-admin'])->group(function () {
             Route::get('dashboard', 'Auth\AdminController@dashboard')->name('admin.dashboard');
@@ -64,9 +64,11 @@ use App\Http\Controllers\OrderController;
         });
     });
 
-
-    
+    Route::get('/products/{product}', 'ProductController@show')->where('product', '[0-9]+')->name('product.show');
     Route::get('/products/filter', 'ProductController@filteredProducts')->name('products.filter');
+    // Route::get('/products/search', 'ProductController@filteredProducts')->name('product.search');
+       
+  
     Route::post('/upload', 'ProductController@upload')->name('upload');
     Route::get('/get-subcategories/{category_id}', 'ProductController@getSubcategories');
 
