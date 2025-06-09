@@ -49,38 +49,39 @@ class AuthController extends Controller
 
     //     return back()->withErrors(['email' => 'Invalid credentials.']);
     // }
- public function login(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required'
-    ]);
+    
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
 
-    $credentials = $request->only('email', 'password');
-    $remember = $request->has('remember');
+        $credentials = $request->only('email', 'password');
+        $remember = $request->has('remember');
 
-    if (Auth::attempt($credentials, $remember)) {
-        $request->session()->regenerate();
+        if (Auth::attempt($credentials, $remember)) {
+            $request->session()->regenerate();
+            
+            redirect()->setIntendedUrl(null);
+
+            $user = Auth::user();      
         
-        redirect()->setIntendedUrl(null);
-
-        $user = Auth::user();      
-       
-        
-        switch ($user->role->slug) {
-            case 'super-admin':
-                return redirect()->route('admin.dashboard');
-            case 'admin':
-                return redirect()->route('admin.dashboard');
-            case 'user':
-                return redirect()->route('main');
-            default:
-                return redirect('/home');
+            
+            switch ($user->role->slug) {
+                case 'super-admin':
+                    return redirect()->route('admin.dashboard');
+                case 'admin':
+                    return redirect()->route('admin.dashboard');
+                case 'user':
+                    return redirect()->route('main');
+                default:
+                    return redirect('/home');
+            }
         }
-    }
 
-    return back()->withErrors(['email' => 'Invalid credentials.']);
-}
+        return back()->withErrors(['email' => 'Invalid credentials.']);
+    }
         
     public function register(Request $request)
     {
