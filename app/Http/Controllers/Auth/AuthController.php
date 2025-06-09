@@ -80,7 +80,7 @@ class AuthController extends Controller
     }
 
     if (User::where('email', $request->email)->exists()) {
-        return back()->withErrors(['password' => 'The provided password is incorrect.'])->withInput();
+        return back()->withErrors(['password' => 'Email or Password Is Incorrect.'])->withInput();
     }
 
     return back()->withErrors(['email' => 'No account found with this email address.'])->withInput();

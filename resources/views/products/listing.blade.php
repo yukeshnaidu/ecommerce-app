@@ -119,7 +119,7 @@
                                 <ul class="subcategory-list">
                                     @foreach($category->subCategories as $subCategory)
                                     <li>
-                                        <a href="{{ route('products.filter', ['category_id' => $category->id, 'sub_category_id' => $subCategory->id]) }}"
+                                        <a href="{{ route('products.filter', ['category_id' => $category->id, 'sub_category_id' => $subCategory->id]) }}"  data-subcategory-id="{{ $subCategory->id }}"
                                           class="subcategory-link {{ isset($selectedSubCategoryId) && $selectedSubCategoryId == $subCategory->id ? 'active' : '' }}">
                                             {{ $subCategory->name }}
                                         </a>
@@ -219,6 +219,7 @@ $(document).ready(function() {
     let debounceTimeout;
 
     function loadProducts(params = {}) {
+        console.log(params);
         $('#products-container').addClass('products-loading');
         $.ajax({
             url: '{{ route("products.filter") }}',
@@ -278,10 +279,11 @@ $(document).ready(function() {
 
     // Subcategory click
     $(document).on('click', '.subcategory-link', function(e) {
-        // e.preventDefault();
-        // $('.subcategory-link').removeClass('active');
-        // $(this).addClass('active');
-        // loadProducts(gatherFilters());
+        console.log('t');
+        e.preventDefault();
+        $('.subcategory-link').removeClass('active');
+        $(this).addClass('active');
+        loadProducts(gatherFilters());
     });
 
     // Pagination via AJAX
