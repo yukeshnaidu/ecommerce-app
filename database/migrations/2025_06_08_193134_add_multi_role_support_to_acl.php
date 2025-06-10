@@ -13,10 +13,10 @@ class AddMultiRoleSupportToAcl extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            // Remove the single role_id column if it exists
-            $table->dropColumn('role_id');
-        });
+        // Schema::table('users', function (Blueprint $table) {
+        //     // Remove the single role_id column if it exists
+        //     $table->dropColumn('role_id');
+        // });
 
         // Create pivot table for user roles
         Schema::create('user_has_roles', function (Blueprint $table) {

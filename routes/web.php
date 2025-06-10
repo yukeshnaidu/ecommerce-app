@@ -11,6 +11,7 @@ use app\Http\Controllers\Auth\AdminController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\Admin\RolePermissionController;
 
 
 /*
@@ -72,31 +73,38 @@ use App\Http\Controllers\OrderController;
     Route::post('/upload', 'ProductController@upload')->name('upload');
     Route::get('/get-subcategories/{category_id}', 'ProductController@getSubcategories');
 
-    Route::prefix('admin')->middleware(['auth', 'role:super-admin'])->group(function () {
+    Route::prefix('admin')->middleware(['auth', 'role:super-admin,admin'])->group(function () {
             
-        Route::get('role-permission', 'Admin\RolePermissionController@index')->name('admin.role-permission');
+        Route::get('role-permission', 'Admin\RolePermissionController@index')->name('admin.role-permission')->middleware('can:access-user-management');
         
         // Roles
+        Route::get('roles', [RolePermissionController::class, 'rolesIndex'])->name('admin.roles');
         Route::post('roles/store', 'Admin\RolePermissionController@storeRole');
         Route::post('roles/update/{id}', 'Admin\RolePermissionController@updateRole');
         Route::get('roles/get/{id}', 'Admin\RolePermissionController@getRole');
         Route::post('roles/delete/{id}', 'Admin\RolePermissionController@destroyRole');
         
         // Permissions
+        Route::get('permissions', [RolePermissionController::class, 'permissionsIndex'])->name('admin.permissions');
         Route::post('permissions/store', 'Admin\RolePermissionController@storePermission');
         Route::post('permissions/update/{id}', 'Admin\RolePermissionController@updatePermission');
         Route::get('permissions/get/{id}', 'Admin\RolePermissionController@getPermission');
         Route::post('permissions/delete/{id}', 'Admin\RolePermissionController@destroyPermission');
         
         // Users
+        Route::get('users', [RolePermissionController::class, 'usersIndex'])->name('admin.users');
         Route::post('users/store', 'Admin\RolePermissionController@storeUser');
         Route::post('users/update/{id}', 'Admin\RolePermissionController@updateUser');
         Route::get('users/get/{id}', 'Admin\RolePermissionController@getUser');
         Route::post('users/delete/{id}', 'Admin\RolePermissionController@destroyUser');
+
+
+        
+        
+        
+        
     });
 
-
-    
 
     // cart
     Route::group(['middleware' => 'auth'], function() {

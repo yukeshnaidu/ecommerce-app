@@ -73,7 +73,7 @@
         .sidebar ul li {
             padding: 15px 20px;
             color: white;
-            display: flex;
+            /* display: flex; */
             align-items: center;
             cursor: pointer;
         }
@@ -168,6 +168,26 @@
     margin: 0;
 }
         
+.treeview-menu {
+    display: none;
+    list-style: none;
+    padding-left: 20px;
+}
+
+.treeview.open > .treeview-menu {
+    display: block;
+}
+
+.treeview > a {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.treeview .pull-right-container {
+    margin-left: auto;
+}
+
     
     </style>
 </head>
@@ -183,7 +203,17 @@
         <span class="user-name">{{ Auth::user()->name }}</span>
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
             <div class="dropdown-header">
-                Logged in as <strong>{{ Auth::user()->role->name }}</strong>
+                @if(Auth::user()->roles->isNotEmpty())
+                    Logged in as 
+                    <strong>
+                        {{ Auth::user()->roles->first()->name }}
+                        @if(Auth::user()->roles->count() > 1)
+                            +{{ Auth::user()->roles->count() - 1 }} more
+                        @endif
+                    </strong>
+                @else
+                    <strong>No role assigned</strong>
+                @endif
             </div>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="{{ route('logout') }}"
@@ -223,15 +253,25 @@
         </a>
     </li>
     
-    @auth
-        @if(auth()->user()->role->slug === 'super-admin')
-        <li>
-            <a href="{{ route('admin.role-permission') }}" style=" color: #ffffff !important;">
-                <i class="fas fa-users-cog"></i> <span>User Management</span>
-            </a>
-        </li>
-        @endif
-    @endauth
+        @auth
+            @can('access-user-management')
+            <li class="treeview">
+    <a href="#" style="color: #ffffff !important;">
+        <i class="fas fa-users-cog"></i> <span>User Management</span>
+        <span class="pull-right-container">
+            <i class="fa fa-angle-down pull-right"></i>
+        </span>
+    </a>
+    <ul class="treeview-menu">
+        <li><a href="{{ route('admin.roles') }}"><i class="fas fa-user-tag"></i> Roles</a></li>
+        <li><a href="{{ route('admin.permissions') }}"><i class="fas fa-key"></i> Permissions</a></li>
+        <li><a href="{{ route('admin.users') }}"><i class="fas fa-users"></i> Users</a></li>
+    </ul>
+</li>
+
+
+            @endcan
+        @endauth
    </ul>
 </div>
 
@@ -246,6 +286,18 @@
     &copy; 2025 Your Company. All rights reserved.
 </footer> -->
 
+
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script> -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
+
+<script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@2.4.18/dist/js/adminlte.min.js"></script>
 <script>
     $(document).ready(function() {
     // User dropdown toggle
@@ -258,6 +310,18 @@
     $(document).click(function() {
         $('.dropdown-menu').hide();
     });
+
+     $('.treeview > a').on('click', function (e) {
+        e.preventDefault();
+        var $parent = $(this).closest('.treeview');
+
+        // Collapse all other open treeviews
+        $('.treeview').not($parent).removeClass('open').find('.treeview-menu').slideUp();
+
+        // Toggle current
+        $parent.toggleClass('open');
+        $parent.find('.treeview-menu').first().slideToggle();
+    });
 });
     const toggleBtn = document.getElementById('toggleSidebar');
     const sidebar = document.getElementById('sidebar');
@@ -268,16 +332,6 @@
         mainContent.classList.toggle('expanded');
     });
 </script>
-<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>    
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script> -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"></script>
-<script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
-
-<script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script>
 @yield('scripts')
 </body>
 </html>

@@ -20,8 +20,8 @@ class AuthController extends Controller
     public function showRegister()
     {
         return view('auth.register');
-    }
-
+    }   
+    
     // public function login(Request $request)
     // {
     //     $request->validate([
@@ -33,7 +33,12 @@ class AuthController extends Controller
     //     $remember = $request->has('remember');
 
     //     if (Auth::attempt($credentials, $remember)) {
-    //         $user = Auth::user();            
+    //         $request->session()->regenerate();
+            
+    //         redirect()->setIntendedUrl(null);
+
+    //         $user = Auth::user();      
+        
             
     //         switch ($user->role->slug) {
     //             case 'super-admin':
@@ -49,8 +54,27 @@ class AuthController extends Controller
 
     //     return back()->withErrors(['email' => 'Invalid credentials.']);
     // }
-    
-    public function login(Request $request)
+        
+    // public function register(Request $request)
+    // {
+    //     $request->validate([
+    //         'name'     => 'required|string|max:255',
+    //         'email'    => 'required|email|unique:users,email',
+    //         'password' => 'required|min:6|confirmed',
+    //     ]);
+
+    //     $user = User::create([
+    //         'name'     => $request->name,
+    //         'email'    => $request->email,
+    //         'password' => Hash::make($request->password),
+    //         'role_id'  => Role::where('slug', 'user')->first()->id,
+    //     ]);
+
+    //     Auth::login($user);
+    //     return redirect()->route('main');
+    // }
+
+        public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
@@ -62,15 +86,21 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $remember)) {
             $request->session()->regenerate();
-            
             redirect()->setIntendedUrl(null);
 
-            $user = Auth::user();      
-        
+            $user = Auth::user();
             
-            switch ($user->role->slug) {
+            // Check if user has any roles
+            if ($user->roles->isEmpty()) {
+                Auth::logout();
+                return back()->withErrors(['email' => 'User has no assigned role.']);
+            }
+
+            // Get the first role (or implement your own logic for multiple roles)
+            $primaryRole = $user->roles->first();
+            
+            switch ($primaryRole->slug) {
                 case 'super-admin':
-                    return redirect()->route('admin.dashboard');
                 case 'admin':
                     return redirect()->route('admin.dashboard');
                 case 'user':
@@ -82,7 +112,7 @@ class AuthController extends Controller
 
         return back()->withErrors(['email' => 'Invalid credentials.']);
     }
-        
+
     public function register(Request $request)
     {
         $request->validate([
@@ -95,13 +125,18 @@ class AuthController extends Controller
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role_id'  => Role::where('slug', 'user')->first()->id,
         ]);
+
+        // Assign default 'user' role
+        $defaultRole = Role::where('slug', 'user')->first();
+        if ($defaultRole) {
+            $user->roles()->attach($defaultRole->id);
+        }
 
         Auth::login($user);
         return redirect()->route('main');
     }
-
+        
     public function logout()
     {
         Auth::logout();

@@ -16,13 +16,13 @@
 
                     You are logged in as an admin!
                     
-                    @if(auth()->user()->role->slug == 'super-admin')
+                    @can('delete')
                         <div class="mt-3">
                             <a href="{{ route('admin.delete-requests') }}" class="btn btn-info">
                                 View Delete Requests
                             </a>
                         </div>
-                    @endif
+                    @endcan 
                 </div>
             </div>
         </div>

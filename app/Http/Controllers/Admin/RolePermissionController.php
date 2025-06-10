@@ -13,16 +13,38 @@ class RolePermissionController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
-        $this->middleware('role:super-admin');
+        // $this->middleware('auth');
+        // $this->middleware('role:super-admin');
+    }
+
+
+    public function rolesIndex()
+    {
+        $roles = Role::with('permissions')->get();
+        $permissions = Permission::all();
+        return view('admin.role-permission.roles', compact('roles', 'permissions'));
+    }
+
+    public function permissionsIndex()
+    {
+        $permissions = Permission::all();
+        return view('admin.role-permission.permissions', compact('permissions'));
+    }
+
+    public function usersIndex()
+    {
+        $users = User::with(['roles', 'permissions'])->get();
+        $roles = Role::all(); // Needed for the user form
+        $permissions = Permission::all(); // Needed for the user form
+        return view('admin.role-permission.users', compact('users', 'roles', 'permissions'));
     }
 
     public function index()
     {
+        
         $roles = Role::with('permissions')->get();
         $permissions = Permission::all();
-        $users = User::with('role')->get();
-        
+        $users = User::with(['roles', 'permissions'])->get();        
         return view('admin.role-permission.index', compact('roles', 'permissions', 'users'));
     }
 
@@ -32,9 +54,9 @@ class RolePermissionController extends Controller
         return response()->json($permission);
     }
 
-    public function getUser($id)
+     public function getUser($id)
     {
-        $user = User::with('role')->findOrFail($id);
+        $user = User::with(['roles', 'permissions'])->findOrFail($id); 
         return response()->json($user);
     }
     // Roles CRUD
@@ -122,21 +144,28 @@ class RolePermissionController extends Controller
     }
 
     // Users CRUD
-    public function storeUser(Request $request)
+     public function storeUser(Request $request)
     {
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'role_id' => 'required|exists:roles,id'
+            'roles' => 'required|array', 
+            'roles.*' => 'exists:roles,id',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id'
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role_id' => $request->role_id
         ]);
+
+        $user->roles()->sync($request->roles);
+        if ($request->has('permissions')) {
+            $user->permissions()->sync($request->permissions);
+        }
 
         return response()->json(['success' => 'User created successfully']);
     }
@@ -149,13 +178,15 @@ class RolePermissionController extends Controller
             'name' => 'required',
             'email' => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'password' => 'nullable|min:6',
-            'role_id' => 'required|exists:roles,id'
+            'roles' => 'required|array', 
+            'roles.*' => 'exists:roles,id',
+            'permissions' => 'nullable|array',
+            'permissions.*' => 'exists:permissions,id'
         ]);
 
         $data = [
             'name' => $request->name,
             'email' => $request->email,
-            'role_id' => $request->role_id
         ];
 
         if ($request->password) {
@@ -163,6 +194,8 @@ class RolePermissionController extends Controller
         }
 
         $user->update($data);
+        $user->roles()->sync($request->roles);
+        $user->permissions()->sync($request->permissions ?? []);
 
         return response()->json(['success' => 'User updated successfully']);
     }

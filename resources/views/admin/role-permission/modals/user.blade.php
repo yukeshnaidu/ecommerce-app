@@ -25,10 +25,18 @@
                         <small class="text-muted">Leave blank to keep current password</small>
                     </div>
                     <div class="form-group">
-                        <label for="userRole">Role</label>
-                        <select class="form-control" id="userRole" name="role_id" required>
+                        <label>Roles</label>
+                        <select class="form-control select2" id="userRoles" name="roles[]" multiple="multiple" style="width: 100%;" required>
                             @foreach($roles as $role)
                             <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Direct Permissions (Optional)</label>
+                        <select class="form-control select2" id="userPermissions" name="permissions[]" multiple="multiple" style="width: 100%;">
+                            @foreach($permissions as $permission)
+                            <option value="{{ $permission->id }}">{{ $permission->name }}</option>
                             @endforeach
                         </select>
                     </div>

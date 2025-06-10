@@ -27,22 +27,12 @@ class AuthServiceProvider extends ServiceProvider
 
         // Dynamic permission checking
         Gate::before(function ($user, $ability) {
+            // dd($user, $ability);
+            // dd($user->hasPermission($ability));
             if ($user->hasPermission($ability)) {
                 return true;
             }
-        });
-       
-        Gate::define('add', function ($user) {
-            return $user->hasPermission('add');
-        });
-
-        Gate::define('edit', function ($user) {
-            return $user->hasPermission('edit');
-        });
-
-        Gate::define('delete', function ($user) {
-            return $user->hasPermission('delete');
-        });
-
+        });      
+      
     }
 }
