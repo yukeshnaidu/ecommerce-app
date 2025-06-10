@@ -218,84 +218,84 @@ class ProductController extends Controller
 
 
     public function filteredProducts(Request $request)
-{
-    $query = Product::with(['category', 'subCategory'])
-                ->select('products.*');
-    
-    // Category filter
-    if ($request->has('category_id') && $request->category_id) {
-        $query->where('category_id', $request->category_id);
-    }
-    
-    // Subcategory filter
-    if ($request->has('sub_category_id') && $request->sub_category_id) {
-        $query->where('sub_category_id', $request->sub_category_id);
-    }
-    
-    // Price range filter
-    if ($request->has('min_price') && $request->min_price && 
-        $request->has('max_price') && $request->max_price) {
-        $query->whereBetween('price', [
-            $request->min_price, 
-            $request->max_price
-        ]);
-    }
-    
-    // Search term filter
-    if ($request->has('search') && $request->search) {
-        $query->where(function($q) use ($request) {
-            $q->where('name', 'like', '%'.$request->search.'%')
-              ->orWhere('description', 'like', '%'.$request->search.'%');
-        });
-    }
-    
-    // Sorting
-    $sort = $request->get('sort', 'latest');
-    switch($sort) {
-        case 'price_asc':
-            $query->orderBy('price', 'asc');
-            break;
-        case 'price_desc':
-            $query->orderBy('price', 'desc');
-            break;
-        case 'name':
-            $query->orderBy('name', 'asc');
-            break;
-        default: 
-            $query->orderBy('created_at', 'desc');
-    }
-    
-    // Pagination
-    $perPage = $request->get('per_page', 12);
-    $products = $query->paginate($perPage);
-    
-    // Latest products
-    $latestProducts = Product::orderBy('created_at', 'desc')
-        ->limit(4)
-        ->get();
-    
-    if ($request->ajax()) {
-        $html = view('products.partials.product-list', ['products' => $products])->render();
-        $latestHtml = view('products.partials.latest-products', ['latestProducts' => $latestProducts])->render();
+    {
+        $query = Product::with(['category', 'subCategory'])
+                    ->select('products.*');
         
-        return response()->json([
-            'html' => $html,
-            'latestHtml' => $latestHtml,
-            'meta' => [
-                'total' => $products->total(),
-                'from' => $products->firstItem(),
-                'to' => $products->lastItem()
-            ]
+        // Category filter
+        if ($request->has('category_id') && $request->category_id) {
+            $query->where('category_id', $request->category_id);
+        }
+        
+        // Subcategory filter
+        if ($request->has('sub_category_id') && $request->sub_category_id) {
+            $query->where('sub_category_id', $request->sub_category_id);
+        }
+        
+        // Price range filter
+        if ($request->has('min_price') && $request->min_price && 
+            $request->has('max_price') && $request->max_price) {
+            $query->whereBetween('price', [
+                $request->min_price, 
+                $request->max_price
+            ]);
+        }
+        
+        // Search term filter
+        if ($request->has('search') && $request->search) {
+            $query->where(function($q) use ($request) {
+                $q->where('name', 'like', '%'.$request->search.'%')
+                ->orWhere('description', 'like', '%'.$request->search.'%');
+            });
+        }
+        
+        // Sorting
+        $sort = $request->get('sort', 'latest');
+        switch($sort) {
+            case 'price_asc':
+                $query->orderBy('price', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price', 'desc');
+                break;
+            case 'name':
+                $query->orderBy('name', 'asc');
+                break;
+            default: 
+                $query->orderBy('created_at', 'desc');
+        }
+        
+        // Pagination
+        $perPage = $request->get('per_page', 12);
+        $products = $query->paginate($perPage);
+        
+        // Latest products
+        $latestProducts = Product::orderBy('created_at', 'desc')
+            ->limit(4)
+            ->get();
+        
+        if ($request->ajax()) {
+            $html = view('products.partials.product-list', ['products' => $products])->render();
+            $latestHtml = view('products.partials.latest-products', ['latestProducts' => $latestProducts])->render();
+            
+            return response()->json([
+                'html' => $html,
+                'latestHtml' => $latestHtml,
+                'meta' => [
+                    'total' => $products->total(),
+                    'from' => $products->firstItem(),
+                    'to' => $products->lastItem()
+                ]
+            ]);
+        }
+        
+        $categories = Category::with('subCategories')->get();
+        
+        return view('products.listing', compact('categories', 'products', 'latestProducts'))
+        ->with([
+            'selectedCategoryId' => $request->category_id,
+            'selectedSubCategoryId' => $request->sub_category_id,
         ]);
-    }
-    
-    $categories = Category::with('subCategories')->get();
-    
-    return view('products.listing', compact('categories', 'products', 'latestProducts'))
-    ->with([
-        'selectedCategoryId' => $request->category_id,
-        'selectedSubCategoryId' => $request->sub_category_id,
-    ]);
 
-}
+    }
 }
