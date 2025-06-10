@@ -98,7 +98,7 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Role</th>
+                                <th>Roles</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -106,7 +106,11 @@
                             @foreach($users as $user)
                             <tr>
                                 <td>{{ $user->name }}</td>
-                                <td>{{ $user->role->name }}</td>
+                                <td>
+                                    @foreach($user->roles as $role)
+                                        <span class="badge badge-primary">{{ $role->name }}</span>
+                                    @endforeach
+                               </td>
                                 <td>
                                     <button class="btn btn-info btn-sm edit-user" data-id="{{ $user->id }}">
                                         <i class="fas fa-edit"></i>
@@ -144,6 +148,12 @@ $(document).ready(function() {
         placeholder: "Select permissions",
         allowClear: true,
         dropdownParent: $('#roleModal')
+    });
+
+     $('.select2').select2({
+        placeholder: "Select items",
+        allowClear: true,
+        dropdownParent: $('#userModal')
     });
 
     // Global AJAX setup
@@ -222,7 +232,7 @@ $(document).ready(function() {
  
     $(document).on('click', '.edit-role', function() {
         let roleId = $(this).data('id');
-         console.log("editroleid-".roleId);
+        //  console.log(roleId);
         $.ajax({
             url: '/admin/roles/get/' + roleId,
             type: 'GET',
@@ -272,7 +282,7 @@ $(document).ready(function() {
   
     $(document).on('click', '.edit-user', function() {
         let userId = $(this).data('id');
-         console.log("edituserId-".userId);
+        
         $.ajax({
             url: '/admin/users/get/' + userId,
             type: 'GET',
@@ -281,8 +291,19 @@ $(document).ready(function() {
                 $('#userId').val(data.id);
                 $('#userName').val(data.name);
                 $('#userEmail').val(data.email);
-                $('#userRole').val(data.role_id);
                 $('#userPassword').val('').attr('placeholder', 'Leave blank to keep current');
+                
+                // Set roles
+                $('#userRoles').val(null).trigger('change');
+                let roleIds = data.roles.map(role => role.id);
+                $('#userRoles').val(roleIds).trigger('change');
+                
+                // Set permissions if available
+                if (data.permissions) {
+                    $('#userPermissions').val(null).trigger('change');
+                    let permissionIds = data.permissions.map(p => p.id);
+                    $('#userPermissions').val(permissionIds).trigger('change');
+                }
                 
                 $('#userModal').modal('show');
             },

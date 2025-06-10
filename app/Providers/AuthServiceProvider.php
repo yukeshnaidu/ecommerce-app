@@ -25,6 +25,14 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        // Dynamic permission checking
+        Gate::before(function ($user, $ability) {
+            // dd($user, $ability);
+            // dd($user->hasPermission($ability));
+            if ($user->hasPermission($ability)) {
+                return true;
+            }
+        });      
+      
     }
 }
