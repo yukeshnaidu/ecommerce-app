@@ -90,7 +90,7 @@
 								<div class="card-back">
 									<div class="center-wrap">
 										<div class="section text-center">
-											<h4 class="mb-4 pb-3">Sign Up</h4>
+											<h4 class="mb-4 pb-3">Sign Up</h4>                                            
                                             <form method="POST" action="{{ route('register.post') }}">
                                                 @csrf
                                                 <div class="form-group">

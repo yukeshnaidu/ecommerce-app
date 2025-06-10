@@ -19,7 +19,7 @@
             font-size: 15px;
             line-height: 1.7;
             color: #c4c3ca;
-            background-color: #1f2029;
+            background-color: #9a2948;
             overflow-x: hidden;
         }
         a {
@@ -72,7 +72,7 @@
         padding: 0;
         margin: 10px auto;
         cursor: pointer;
-        background-color: #ffeba7;
+        background-color: #ff0046;
         }
         .checkbox:checked + label:before,
         .checkbox:not(:checked) + label:before{
@@ -82,7 +82,7 @@
         height: 36px;
         border-radius: 50%;
         color: #ffeba7;
-        background-color: #102770;
+        background-color: #df003d;
         font-family: 'unicons';
         content: '\eb4f';
         z-index: 20;
@@ -121,7 +121,7 @@
         .card-front, .card-back {
         width: 100%;
         height: 100%;
-        background-color: #2a2b38;
+        background-color: #611429;
         background-image: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1462889/pat.svg');
         background-position: bottom center;
         background-repeat: no-repeat;
@@ -173,7 +173,7 @@
         letter-spacing: 0.5px;
         outline: none;
         color: #c4c3ca;
-        background-color: #1f2029;
+        background-color: #9a2948;
         border: none;
         -webkit-transition: all 200ms linear;
         transition: all 200ms linear;
@@ -267,18 +267,18 @@
         -ms-flex-pack: center;
         text-align: center;
         border: none;
-        background-color: #ffeba7;
-        color: #102770;
+        background-color: #cb748c;
+        color: #ffffff;
         box-shadow: 0 8px 24px 0 rgba(255,235,167,.2);
         }
         .btn:active,
         .btn:focus{  
-        background-color: #102770;
+        background-color:rgb(199, 69, 106);
         color: #ffeba7;
         box-shadow: 0 8px 24px 0 rgba(16,39,112,.2);
         }
         .btn:hover{  
-        background-color: #102770;
+        background-color:rgb(199, 69, 106);
         color: #ffeba7;
         box-shadow: 0 8px 24px 0 rgba(16,39,112,.2);
         }
