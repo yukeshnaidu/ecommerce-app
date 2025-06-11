@@ -59,11 +59,11 @@
                         <nav class="main-nav w-100">
                             <ul class="menu">
                                 <li class="active">
-                                    <a href="{{ route('main') }}">Home</a>
+                                    <a href="@auth {{ route('main') }} @else {{ route('home') }} @endauth">Home</a>
                                 </li>                                
                                 <li>
-                                    <a href="{{ route('main') }}">Products</a>                                  
-                                </li>    
+                                    <a href="@auth {{ route('main') }} @else {{ route('home') }} @endauth">Products</a>                                  
+                                </li>  
                                 <li>
                                     <a href="{{ route('orders.index') }}">My Orders</a>                                  
                                 </li>                             
@@ -75,7 +75,7 @@
                         <button class="mobile-menu-toggler text-primary mr-2" type="button">
                             <i class="fas fa-bars"></i>
                         </button>
-                        <a href="{{ route('main') }}" class="logo">
+                        <a href="@auth {{ route('main') }} @else {{ route('home') }} @endauth" class="logo">
                             <img src="assets/images/logo-black.png" width="111" height="44" alt="Porto Logo">
                         </a>
                     </div>
@@ -294,7 +294,7 @@
 
     <div class="sticky-navbar">
         <div class="sticky-info">
-            <a href="{{ route('main') }}">
+            <a href="@auth {{ route('main') }} @else {{ route('home') }} @endauth">
                 <i class="icon-home"></i>Home
             </a>
         </div>
