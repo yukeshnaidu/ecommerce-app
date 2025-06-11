@@ -67,6 +67,7 @@ use App\Http\Controllers\Admin\RolePermissionController;
 
     Route::get('/products/{product}', 'ProductController@show')->where('product', '[0-9]+')->name('product.show');
     Route::get('/products/filter', 'ProductController@filteredProducts')->name('products.filter');
+    Route::get('/cart/dropdown', 'CartController@dropdown')->name('cart.dropdown');
     // Route::get('/products/search', 'ProductController@filteredProducts')->name('product.search');
        
   
@@ -105,14 +106,22 @@ use App\Http\Controllers\Admin\RolePermissionController;
         
     });
 
+    // Guest routes
+    Route::post('/cart/add', 'CartController@add')->name('cart.add');
+    Route::get('/cart', 'CartController@index')->name('cart.index');
+    Route::post('/cart/update/{id}', 'CartController@update')->name('cart.update');
+    Route::post('/cart/remove/{id}', 'CartController@remove')->name('cart.remove');
+    Route::get('/cart/count', 'CartController@count')->name('cart.count');
+    Route::get('/checkout/guest', 'CheckoutController@guestCheckout')->name('checkout.guest');
+
 
     // cart
     Route::group(['middleware' => 'auth'], function() {
-        Route::post('/cart/add', 'CartController@add')->name('cart.add');
-        Route::get('/cart', 'CartController@index')->name('cart.index');
-        Route::post('/cart/update/{id}', 'CartController@update')->name('cart.update');
-        Route::post('/cart/remove/{id}', 'CartController@remove')->name('cart.remove');
-        Route::get('/cart/count', 'CartController@count')->name('cart.count');
+        // Route::post('/cart/add', 'CartController@add')->name('cart.add');
+        // Route::get('/cart', 'CartController@index')->name('cart.index');
+        // Route::post('/cart/update/{id}', 'CartController@update')->name('cart.update');
+        // Route::post('/cart/remove/{id}', 'CartController@remove')->name('cart.remove');
+        // Route::get('/cart/count', 'CartController@count')->name('cart.count');
         
         // Checkout
         Route::get('/checkout', 'CheckoutController@index')->name('checkout.index');

@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 class HomeController extends Controller
 {
     public function home(){
-         $user = Auth::user();  
+        $user = Auth::user();  
         $categories = Category::all();
         $products = Product::with('category')->get();
 

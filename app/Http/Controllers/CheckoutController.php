@@ -6,11 +6,17 @@ use Illuminate\Http\Request;
 use App\Order;
 use App\OrderItem;
 use App\Cart;
+use App\Product;
+use App\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class CheckoutController extends Controller
 {
+     public function __construct()
+    {
+        $this->middleware('auth')->except(['guestCheckout']);
+    }
 
     public function index()
     {
@@ -31,70 +37,45 @@ class CheckoutController extends Controller
         return view('checkout.index', compact('cartItems', 'subtotal', 'gst', 'shipping', 'total'));
     }
     
-    // public function store(Request $request)
-    // {
-    //     $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'email' => 'required|email|max:255',
-    //         'phone' => 'required|string|max:20',
-    //         'address' => 'required|string',
-    //         'city' => 'required|string|max:255',
-    //         'zip' => 'required|string|max:20',
-    //     ]);
-
-    //     $cartItems = Cart::with('product')->where('user_id', auth()->id())->get();
+    public function guestCheckout()
+    {
+        if (auth()->check()) {
+            return redirect()->route('checkout.index');
+        }
         
-    //     if ($cartItems->isEmpty()) {
-    //         return redirect()->route('cart.index')->with('error', 'Your cart is empty');
-    //     }
+        $cart = session()->get('cart', []);
         
-    //     $subtotal = $cartItems->sum(function($item) {
-    //         return $item->quantity * $item->product->price;
-    //     });
+        if (empty($cart)) {
+            return redirect()->route('cart.index')->with('error', 'Your cart is empty');
+        }
         
-    //     $gst = $subtotal * 0.18;
-    //     $shipping = 100;
-    //     $total = $subtotal + $gst + $shipping;
+        $productIds = array_keys($cart);
+        $products = Product::whereIn('id', $productIds)->get();
         
-    //     // Create order
-    //     $order = Order::create([
-    //         'user_id' => auth()->id(),
-    //         'subtotal' => $subtotal,
-    //         'gst' => $gst,
-    //         'shipping' => $shipping,
-    //         'total' => $total,
-    //         'status' => 'pending',
-    //         'name' => $request->name,
-    //         'email' => $request->email,
-    //         'phone' => $request->phone,
-    //         'address' => $request->address,
-    //         'city' => $request->city,
-    //         'zip' => $request->zip,
-    //     ]);
+        $cartItems = collect();
+        foreach ($products as $product) {
+            $cartItems->push((object)[
+                'id' => $product->id,
+                'product_id' => $product->id,
+                'product' => $product,
+                'quantity' => $cart[$product->id]
+            ]);
+        }
         
-    //     // Create order items
-    //     foreach ($cartItems as $item) {
-    //         OrderItem::create([
-    //             'order_id' => $order->id,
-    //             'product_id' => $item->product_id,
-    //             'quantity' => $item->quantity,
-    //             'price' => $item->product->price
-    //         ]);
-    //     }
+        $subtotal = 0;
+        foreach ($cartItems as $item) {
+            $subtotal += $item->quantity * $item->product->price;
+        }
         
-    //     // Clear cart
-    //     Cart::where('user_id', auth()->id())->delete();
+        $gst = $subtotal * 0.18;
+        $shipping = 100;
+        $total = $subtotal + $gst + $shipping;
         
-    //     return response()->json([
-    //         'redirect' => route('orders.show', $order->id)
-    //     ]);
-    // }
-
-
-
+        return view('checkout.guest', compact('cartItems', 'subtotal', 'gst', 'shipping', 'total'));
+    }
+    
     public function store(Request $request)
     {
-        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
@@ -106,6 +87,24 @@ class CheckoutController extends Controller
             'country' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
         ]);
+
+        // Check if user is guest or not
+        if (!auth()->check()) {            
+            $userExists = User::where('email', $validated['email'])->exists();            
+            if ($userExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This email is already registered. Please login to complete your purchase.',
+                    'redirect' => route('login')
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Please register to complete your purchase.',
+                    'redirect' => route('register')
+                ]);
+            }
+        }
 
         try {          
             DB::beginTransaction();

@@ -81,9 +81,16 @@
                         <span id="total-display">₹{{ number_format($cartItems->sum(function($item) { return $item->product->price * $item->quantity * 1.18; }) + ($cartItems->isEmpty() ? 0 : 100), 2) }}</span>
                     </div>
                     
-                    <a href="{{ route('checkout.index') }}" class="btn btn-primary btn-block mt-3 @if($cartItems->isEmpty()) disabled @endif">
+                    <!-- <a href="{{ route('checkout.index') }}" class="btn btn-primary btn-block mt-3 @if($cartItems->isEmpty()) disabled @endif">
                         Proceed to Checkout
-                    </a>
+                    </a> -->
+
+                    @if(auth()->check())
+                        <a href="{{ route('checkout.index') }}" class="btn btn-primary btn-block mt-3">Proceed to Checkout</a>
+                    @else
+                        <a href="{{ route('checkout.guest') }}" class="btn btn-primary btn-block mt-3">Continue as Guest</a>
+                        <p class="text-center mt-2">or <a href="{{ route('login') }}">Login</a> to checkout faster</p>
+                    @endif
                     
                     <a href="{{ route('main') }}" class="btn btn-outline-dark btn-block mt-2">
                         Continue Shopping

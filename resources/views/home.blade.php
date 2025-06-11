@@ -75,22 +75,22 @@
                         <button class="mobile-menu-toggler text-primary mr-2" type="button">
                             <i class="fas fa-bars"></i>
                         </button>
-                        <a href="{{ route('main') }}" class="logo">
+                        <a href="{{ route('home') }}" class="logo">
                             <img src="assets/images/logo-black.png" width="111" height="44" alt="Porto Logo">
                         </a>
                     </div>
 
                     <div class="header-right">
-                        <div class="header-icon header-search header-search-popup header-search-category d-none d-sm-block">
+                        <!-- <div class="header-icon header-search header-search-popup header-search-category d-none d-sm-block">
                             <a href="#" class="search-toggle" role="button"><i class="icon-magnifier"></i></a>
                             <form action="#" method="get">
                                 <div class="header-search-wrapper">
                                     <input type="search" class="form-control" name="q" id="q" placeholder="I'm searching for..." required="">
                                     <button class="btn icon-search-3 border-0" type="submit"></button>
                                 </div>
-                                <!-- End .header-search-wrapper -->
+                                 End .header-search-wrapper 
                             </form>
-                        </div>
+                        </div> -->
 
                         <!-- User Icon -->
                         <a href="{{ route('login') }}" class="header-icon header-user-icon" title="Login" style="font-size: 20px;">
@@ -104,7 +104,7 @@
                             </b>
                         </a>
 
-                        <!-- Dropdown for logged in users -->
+                        
                         @if(Auth::check())                            
                                 <a class="header-icon header-user-icon" href="{{ route('logout') }}"
                                     onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
@@ -121,105 +121,68 @@
                         </span>
 
                         <div class="dropdown cart-dropdown">
-                            <a href="#" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                            <a href="{{route(cart)}}" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                                 <i class="icon-cart-thick"></i>
-                                <span class="cart-count badge-circle">3</span>
+                                <span class="cart-count badge-circle">{{ auth()->check() ? auth()->user()->cartItems->sum('quantity') : 0 }}</span>
                             </a>
 
                             <div class="cart-overlay"></div>
 
-                            <div class="dropdown-menu mobile-cart">
-                                <a href="#" title="Close (Esc)" class="btn-close">×</a>
+                                <div class="dropdown-menu mobile-cart">
+                                    <a href="#" title="Close (Esc)" class="btn-close">×</a>
 
-                                <div class="dropdownmenu-wrapper custom-scrollbar">
-                                    <div class="dropdown-cart-header">Shopping Cart</div>
-                                    <!-- End .dropdown-cart-header -->
+                                    <div class="dropdownmenu-wrapper custom-scrollbar">
+                                        <div class="dropdown-cart-header">Shopping Cart</div>
+                                        <!-- End .dropdown-cart-header -->
 
-                                    <div class="dropdown-cart-products">
-                                        <div class="product">
-                                            <div class="product-details">
-                                                <h4 class="product-title">
-                                                    <a href="demo39-product.html">Ultimate 3D Bluetooth Speaker</a>
-                                                </h4>
+                                        <div class="dropdown-cart-products">
+                                            @if(auth()->check() && auth()->user()->cartItems->count())
+                                                @foreach(auth()->user()->cartItems as $item)
+                                                <div class="product">
+                                                    <div class="product-details">
+                                                        <h4 class="product-title">
+                                                            <a href="{{ route('product.show', $item->product_id) }}">{{ $item->product->name }}</a>
+                                                        </h4>
 
-                                                <span class="cart-product-info">
-                                                    <span class="cart-product-qty">1</span> × ₹99.00
-                                                </span>
-                                            </div>
-                                            <!-- End .product-details -->
+                                                        <span class="cart-product-info">
+                                                            <span class="cart-product-qty">{{ $item->quantity }}</span> × ₹{{ number_format($item->product->price, 2) }}
+                                                        </span>
+                                                    </div>
+                                                    <!-- End .product-details -->
 
-                                            <figure class="product-image-container">
-                                                <a href="demo39-product.html" class="product-image">
-                                                    <img src="assets/images/products/product-1.jpg" alt="product" width="80" height="80">
-                                                </a>
+                                                    <figure class="product-image-container">
+                                                        <a href="{{ route('product.show', $item->product_id) }}" class="product-image">
+                                                            <img src="{{ asset('product_images/'.$item->product->image) }}" alt="product" width="80" height="80">
+                                                        </a>
 
-                                                <a href="#" class="btn-remove" title="Remove Product"><span>×</span></a>
-                                            </figure>
+                                                        <a href="#" class="btn-remove remove-item" title="Remove Product" data-id="{{ $item->id }}"><span>×</span></a>
+                                                    </figure>
+                                                </div>
+                                                @endforeach
+                                            @else
+                                                <p class="text-center py-3">Your cart is empty</p>
+                                            @endif
                                         </div>
-                                        <!-- End .product -->
+                                        <!-- End .cart-product -->
 
-                                        <div class="product">
-                                            <div class="product-details">
-                                                <h4 class="product-title">
-                                                    <a href="demo39-product.html">Brown Women Casual HandBag</a>
-                                                </h4>
+                                        @if(auth()->check() && auth()->user()->cartItems->count())
+                                        <div class="dropdown-cart-total">
+                                            <span>SUBTOTAL:</span>
 
-                                                <span class="cart-product-info">
-                                                    <span class="cart-product-qty">1</span> × ₹35.00
-                                                </span>
-                                            </div>
-                                            <!-- End .product-details -->
-
-                                            <figure class="product-image-container">
-                                                <a href="demo39-product.html" class="product-image">
-                                                    <img src="assets/images/products/product-2.jpg" alt="product" width="80" height="80">
-                                                </a>
-
-                                                <a href="#" class="btn-remove" title="Remove Product"><span>×</span></a>
-                                            </figure>
+                                            <span class="cart-total-price float-right">₹{{ number_format(auth()->user()->cartItems->sum(function($item) { return $item->quantity * $item->product->price; }), 2) }}</span>
                                         </div>
-                                        <!-- End .product -->
+                                        <!-- End .dropdown-cart-total -->
 
-                                        <div class="product">
-                                            <div class="product-details">
-                                                <h4 class="product-title">
-                                                    <a href="demo39-product.html">Circled Ultimate 3D Speaker</a>
-                                                </h4>
-
-                                                <span class="cart-product-info">
-                                                    <span class="cart-product-qty">1</span> × ₹35.00
-                                                </span>
-                                            </div>
-                                            <!-- End .product-details -->
-
-                                            <figure class="product-image-container">
-                                                <a href="demo39-product.html" class="product-image">
-                                                    <img src="assets/images/products/product-3.jpg" alt="product" width="80" height="80">
-                                                </a>
-                                                <a href="#" class="btn-remove" title="Remove Product"><span>×</span></a>
-                                            </figure>
+                                        <div class="dropdown-cart-action">
+                                            <a href="{{ route('cart.index') }}" class="btn btn-gray btn-block view-cart">View Cart</a>
+                                            <a href="{{ route('checkout.index') }}" class="btn btn-dark btn-block">Checkout</a>
                                         </div>
-                                        <!-- End .product -->
+                                        @endif
+                                        <!-- End .dropdown-cart-total -->
                                     </div>
-                                    <!-- End .cart-product -->
-
-                                    <div class="dropdown-cart-total">
-                                        <span>SUBTOTAL:</span>
-
-                                        <span class="cart-total-price float-right">₹134.00</span>
-                                    </div>
-                                    <!-- End .dropdown-cart-total -->
-
-                                    <div class="dropdown-cart-action">
-                                        <a href="cart.html" class="btn btn-gray btn-block view-cart">View
-                                            Cart</a>
-                                        <a href="checkout.html" class="btn btn-dark btn-block">Checkout</a>
-                                    </div>
-                                    <!-- End .dropdown-cart-total -->
-                                </div>
-                                <!-- End .dropdownmenu-wrapper -->
+                                    <!-- End .dropdownmenu-wrapper -->
                             </div>
-                            <!-- End .dropdown-menu -->
+                                <!-- End .dropdown-menu -->
                         </div>
                         <!-- End .dropdown -->
                     </div>
@@ -307,24 +270,15 @@
                                 <div class="category-wrap">
                                     <div class="category-list">
                                         <!-- Link to a category filter page if exists -->
-                                        <!-- <a href="#" class="product-category">{{ $category->name }}</a> -->
                                          <a href="{{ route('products.filter', ['category_id' => $category->id]) }}" class="product-category">{{ $category->name }}</a>
-
                                     </div>
                                 </div>
 
                                 <h3 class="product-title">
-                                    <!-- <a href="#">{{ $category->name }}</a> -->
                                      <a href="{{ route('products.filter', ['category_id' => $category->id]) }}" class="product-category">{{ $category->name }}</a>
-
                                 </h3>
 
-                                <!-- <div class="ratings-container">
-                                    <div class="product-ratings">
-                                        <span class="ratings" style="width:100%"></span>
-                                        <span class="tooltiptext tooltip-top"></span>
-                                    </div>
-                                </div> -->
+                                
 
                                 <div class="price-box">
                                     <span class="product-price">Explore</span>
@@ -375,17 +329,33 @@
                         <h2 class="text-uppercase">Featured Products</h2>
                     </div>
 
-                 <div class="products-slider custom-products owl-carousel owl-theme nav-outer show-nav-hover nav-image-center appear-animate" 
-     data-animation-delay="500" 
-     data-animation-name="fadeIn" 
-     data-owl-options="{
-         'dots': false,
-         'nav': true
-     }">
+                    <div class="products-slider custom-products owl-carousel owl-theme nav-outer show-nav-hover nav-image-center appear-animate" 
+                        data-animation-delay="500" 
+                        data-animation-name="fadeIn" 
+                        data-owl-options="{
+                            'dots': false,
+                            'nav': true
+                        }">
 
-    @foreach($products as $product)
-    <div class="product-default inner-quickview inner-icon">
-        <figure style="width: 205px; height: 205px; overflow: hidden;">
+                        @foreach($products as $product)
+                        <div class="product-default inner-quickview inner-icon">
+                            <!-- <figure>
+                                <a href="{{ route('product.show', $product->id) }}">
+                                    @if($product->image)
+                                    <img src="{{ asset('product_images/' . $product->image) }}" width="205" height="205" alt="{{ $product->name }}">
+                                    @else
+                                    <img src="{{ asset('images/placeholder.jpg') }}" width="205" height="205" alt="No image">
+                                    @endif
+                                </a>
+
+                             <div class="btn-icon-group">
+                                <a href="#" class="btn-icon btn-add-cart product-type-simple" data-product-id="{{ $product->id }}">
+                                    <i class="icon-shopping-cart"></i>
+                                </a>
+                            </div>
+                                 <a href="#" class="btn-quickview" title="Quick View">Quick View</a> 
+                            </figure> -->
+                            <figure style="width: 205px; height: 205px; overflow: hidden;">
                                 <a href="{{ route('product.show', $product->id) }}">
                                     @if($product->image)
                                     <img src="{{ asset('product_images/' . $product->image) }}" 
@@ -404,32 +374,25 @@
                                 </div>
                             </figure>
 
-        <div class="product-details">
-            <div class="category-wrap">
-                <div class="category-list">
-                    <a href="#" class="product-category">{{ $product->category->name ?? 'Uncategorized' }}</a>
-                </div>
-                <!-- <a href="#" title="Wishlist" class="btn-icon-wish"><i class="icon-heart"></i></a> -->
-            </div>
+                            <div class="product-details">
+                                <div class="category-wrap">
+                                    <div class="category-list">
+                                        <a href="#" class="product-category">{{ $product->category->name ?? 'Uncategorized' }}</a>
+                                    </div>
+                                    <!-- <a href="#" title="Wishlist" class="btn-icon-wish"><i class="icon-heart"></i></a> -->
+                                </div>
 
-            <h3 class="product-title">
-                <a href="{{ route('product.show', $product->id) }}">{{ $product->name }}</a>
-            </h3>
+                                <h3 class="product-title">
+                                    <a href="{{ route('product.show', $product->id) }}">{{ $product->name }}</a>
+                                </h3>                                
 
-            <!-- <div class="ratings-container">
-                <div class="product-ratings">
-                    <span class="ratings" style="width:100%"></span>
-                    <span class="tooltiptext tooltip-top"></span>
-                </div>
-            </div> -->
-
-            <div class="price-box">
-                <span class="product-price">₹{{ number_format($product->price, 2) }}</span>
-            </div>
-        </div>
-    </div>
-    @endforeach
-</div>
+                                <div class="price-box">
+                                    <span class="product-price">₹{{ number_format($product->price, 2) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
 
                     <!-- End .featured-proucts -->
                 </div>
@@ -579,7 +542,7 @@
 
     <div class="sticky-navbar">
         <div class="sticky-info">
-            <a href="{{ route('main') }}">
+            <a href="{{ route('home') }}">
                 <i class="icon-home"></i>Home
             </a>
         </div>
@@ -599,9 +562,9 @@
             </a>
         </div>
         <div class="sticky-info">
-            <a href="cart.html" class="">
+            <a href="{{ route('cart.index') }}" class="">
                 <i class="icon-shopping-cart position-relative">
-                    <span class="cart-count badge-circle">3</span>
+                    <span class="cart-count badge-circle">{{ auth()->check() ? auth()->user()->cartItems->sum('quantity') : 0 }}</span>
                 </i>Cart
             </a>
         </div>
@@ -620,8 +583,43 @@
 
     <!-- Main JS File -->
     <script src="{{ asset('assets/js/main.min.js') }}"></script>
+
+    <script>
+$(document).ready(function() {
+    
+    $('.btn-add-cart').on('click', function(e) {
+        e.preventDefault();
+        const productId = $(this).closest('.product-default').find('input[name="product_id"]').val() || 
+                         $(this).data('product-id');
+        
+        $.ajax({
+            url: "{{ route('cart.add') }}",
+            method: 'POST',
+            data: {
+                _token: "{{ csrf_token() }}",
+                product_id: productId,
+                quantity: 1
+            },
+            success: function(response) {
+                if (response.success) {                    
+                    $('.cart-count').text(response.cart_count);
+                }
+            }
+        });
+    });
+    
+    
+    function updateCartCount() {
+        $.get("{{ route('cart.count') }}", function(response) {
+            $('.cart-count').text(response.count);
+        });
+    }
+    
+    updateCartCount();
+});
+</script>
 </body>
 
 
-<!-- Mirrored from portotheme.com/html/porto_ecommerce/{{ route('main') }} by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 May 2025 07:48:22 GMT -->
+<!-- Mirrored from portotheme.com/html/porto_ecommerce/{{ route('home') }} by HTTrack Website Copier/3.x [XR&CO'2014], Fri, 30 May 2025 07:48:22 GMT -->
 </html>
