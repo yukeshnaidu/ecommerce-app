@@ -121,7 +121,7 @@
                         </span>
 
                         <div class="dropdown cart-dropdown">
-                            <a href="{{route(cart)}}" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
+                            <a href="{{route('cart.index')}}" title="Cart" class="dropdown-toggle dropdown-arrow cart-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-display="static">
                                 <i class="icon-cart-thick"></i>
                                 <span class="cart-count badge-circle">{{ auth()->check() ? auth()->user()->cartItems->sum('quantity') : 0 }}</span>
                             </a>
