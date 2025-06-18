@@ -461,6 +461,7 @@ class ComposerStaticInit6558f74828bca9ebecac73d90cea4b1a
     public static $classMap = array (
         'App\\Cart' => __DIR__ . '/../..' . '/app/Cart.php',
         'App\\Category' => __DIR__ . '/../..' . '/app/Category.php',
+        'App\\Console\\Commands\\MigrateUserRoles' => __DIR__ . '/../..' . '/app/Console/Commands/MigrateUserRoles.php',
         'App\\Console\\Kernel' => __DIR__ . '/../..' . '/app/Console/Kernel.php',
         'App\\DeleteRequest' => __DIR__ . '/../..' . '/app/DeleteRequest.php',
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
@@ -485,6 +486,7 @@ class ComposerStaticInit6558f74828bca9ebecac73d90cea4b1a
         'App\\Http\\Middleware\\TrimStrings' => __DIR__ . '/../..' . '/app/Http/Middleware/TrimStrings.php',
         'App\\Http\\Middleware\\TrustProxies' => __DIR__ . '/../..' . '/app/Http/Middleware/TrustProxies.php',
         'App\\Http\\Middleware\\VerifyCsrfToken' => __DIR__ . '/../..' . '/app/Http/Middleware/VerifyCsrfToken.php',
+        'App\\Listeners\\MergeGuestCartWithUserCart' => __DIR__ . '/../..' . '/app/Listeners/MergeGuestCartWithUserCart.php',
         'App\\Order' => __DIR__ . '/../..' . '/app/Order.php',
         'App\\OrderItem' => __DIR__ . '/../..' . '/app/OrderItem.php',
         'App\\OrderShippingInformation' => __DIR__ . '/../..' . '/app/OrderShippingInformation.php',

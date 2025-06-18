@@ -69,7 +69,8 @@ use App\Http\Controllers\Admin\RolePermissionController;
     Route::get('/products/filter', 'ProductController@filteredProducts')->name('products.filter');
     Route::get('/cart/dropdown', 'CartController@dropdown')->name('cart.dropdown');
     // Route::get('/products/search', 'ProductController@filteredProducts')->name('product.search');
-       
+    Route::get('/sub-categories/table', 'SubCategoryController@table')->name('sub-categories.table');
+
   
     Route::post('/upload', 'ProductController@upload')->name('upload');
     Route::get('/get-subcategories/{category_id}', 'ProductController@getSubcategories');

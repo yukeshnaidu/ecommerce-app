@@ -1,7 +1,12 @@
 @extends('layouts.ecom')
 
 @section('content')
-
+<style>
+    .product-breadcrumb
+    {
+        font-size: 1.8rem;
+    }
+</style>
 <div class="container">
                     <div class="row">
                         <div class="col-md-6">
@@ -13,13 +18,18 @@
                             <h1 class="product-title">{{ $product->name }}</h1>
                             
                             <div class="product-meta">
-                                <span class="product-category">
-                                    Category: <a href="#">{{ $product->category->name ?? 'N/A' }}</a>
-                                </span>
                                 @if($product->subCategory)
-                                <span class="product-subcategory">
-                                    Subcategory: <a href="#">{{ $product->subCategory->name }}</a>
-                                </span>
+                                    <span class="product-breadcrumb">
+                                        <a href="#">{{ $product->category->name ?? 'N/A' }}</a>
+                                        @foreach($product->subCategory->ancestors() as $ancestor)
+                                           > <a href="#">{{ $ancestor->name }}</a>
+                                        @endforeach
+                                        > <a href="#">{{ $product->subCategory->name }}</a>
+                                    </span>
+                                @else
+                                    <span class="product-category">
+                                        Category: <a href="#">{{ $product->category->name ?? 'N/A' }}</a>
+                                    </span>
                                 @endif
                             </div>
                             
@@ -34,7 +44,7 @@
                                 </div>
                             </div>
                             
-                            <!--  -->
+                            <!-- add to cart option   -->
                             
                         </div>
                     </div>

@@ -8,6 +8,7 @@ $baseDir = dirname($vendorDir);
 return array(
     'App\\Cart' => $baseDir . '/app/Cart.php',
     'App\\Category' => $baseDir . '/app/Category.php',
+    'App\\Console\\Commands\\MigrateUserRoles' => $baseDir . '/app/Console/Commands/MigrateUserRoles.php',
     'App\\Console\\Kernel' => $baseDir . '/app/Console/Kernel.php',
     'App\\DeleteRequest' => $baseDir . '/app/DeleteRequest.php',
     'App\\Exceptions\\Handler' => $baseDir . '/app/Exceptions/Handler.php',
@@ -32,6 +33,7 @@ return array(
     'App\\Http\\Middleware\\TrimStrings' => $baseDir . '/app/Http/Middleware/TrimStrings.php',
     'App\\Http\\Middleware\\TrustProxies' => $baseDir . '/app/Http/Middleware/TrustProxies.php',
     'App\\Http\\Middleware\\VerifyCsrfToken' => $baseDir . '/app/Http/Middleware/VerifyCsrfToken.php',
+    'App\\Listeners\\MergeGuestCartWithUserCart' => $baseDir . '/app/Listeners/MergeGuestCartWithUserCart.php',
     'App\\Order' => $baseDir . '/app/Order.php',
     'App\\OrderItem' => $baseDir . '/app/OrderItem.php',
     'App\\OrderShippingInformation' => $baseDir . '/app/OrderShippingInformation.php',

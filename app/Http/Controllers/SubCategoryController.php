@@ -13,14 +13,24 @@ class SubCategoryController extends Controller
 {
     public function index()
     {
-        $subCategories = SubCategory::with('category')->get();
-        return view('sub_categories.index', compact('subCategories'));
+        $subCategories = SubCategory::with(['category', 'parent'])->get();
+        $categories = Category::all();
+        $allSubCategories = SubCategory::all();
+        
+        return view('sub_categories.index', compact('subCategories', 'categories', 'allSubCategories'));
+    }
+
+    public function table()
+    {
+        $subCategories = SubCategory::with(['category', 'parent'])->get();
+        return view('sub_categories.partials.table_rows', compact('subCategories'));
     }
 
     public function create()
     {
         $categories = Category::all();
-        return view('sub_categories.create', compact('categories'));
+        $subCategories = SubCategory::all();
+        return view('sub_categories.create', compact('categories', 'subCategories'));
     }
 
     public function store(Request $request)
@@ -29,14 +39,18 @@ class SubCategoryController extends Controller
             'category_id' => 'required',
             'name' => 'required'
         ]);
+        
         SubCategory::create($request->all());
-        return redirect()->route('sub-categories.index')->with('success', 'Sub-category created successfully.');
+        
+        return response()->json([
+            'success' => 'Sub-category created successfully.'
+        ]);
     }
 
     public function edit(SubCategory $subCategory)
     {
-        $categories = Category::all();
-        return view('sub_categories.edit', compact('subCategory', 'categories'));
+        // dd($subCategory);
+        return response()->json($subCategory);
     }
 
     public function update(Request $request, SubCategory $subCategory)
@@ -45,31 +59,48 @@ class SubCategoryController extends Controller
             'category_id' => 'required',
             'name' => 'required'
         ]);
+        
         $subCategory->update($request->all());
-        return redirect()->route('sub-categories.index')->with('success', 'Sub-category updated successfully.');
+        
+        return response()->json([
+            'success' => 'Sub-category updated successfully.'
+        ]);
     }
 
-    public function destroy($id)
+    public function destroy(SubCategory $subCategory)
     {
-        $subcategory = SubCategory::findorFail($id);
+        // Check if subcategory has children
+        if ($subCategory->children()->count() > 0) {
+            return response()->json([
+                'error' => 'Cannot delete subcategory with child categories.'
+            ], 422);
+        }
 
-         // Super admin can delete directly
+        // Check if subcategory has products
+        if ($subCategory->products()->count() > 0) {
+            return response()->json([
+                'error' => 'Cannot delete subcategory with associated products.'
+            ], 422);
+        }
+
+        // Super admin can delete directly
         if (auth()->user()->role->slug == 'super-admin') {
-            $subcategory->delete();
-            return back()->with('success', 'Product deleted successfully');
+            $subCategory->delete();
+            return response()->json(['success' => 'Sub-category deleted successfully.']);
         }
         
         // Admin needs approval
         if (auth()->user()->role->slug == 'admin') {
             DeleteRequest::create([
                 'model' => SubCategory::class,
-                'model_id' => $id,
+                'model_id' => $subCategory->id,
                 'requested_by' => auth()->id(),
                 'reason' => 'Requested delete from admin panel'
             ]);
             
-            return back()->with('success', 'Delete request sent to Super Admin for approval');
+            return response()->json(['success' => 'Delete request sent to Super Admin for approval.']);
         }
-        return redirect()->route('sub-categories.index')->with('success', 'Sub-category deleted successfully.');
+
+        return response()->json(['error' => 'You are not authorized to delete subcategories.'], 403);
     }
 }
